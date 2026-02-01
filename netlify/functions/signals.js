@@ -7,7 +7,8 @@
 // Este endpoint:
 // - GET  -> retorna snapshot atual (se existir)
 // - POST -> atualiza snapshot (respeitando throttling básico)
-
+const fetch = (...args) =>
+  import("node-fetch").then(({ default: fetch }) => fetch(...args));
 const { getStore } = require("@netlify/blobs");
 
 const STORE_NAME = "ctr_optimizer";
