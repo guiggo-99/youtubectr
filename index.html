@@ -1,0 +1,1127 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CTR AI Otimizador PRO - Motor + IA + Snapshot YouTube</title>
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- React & ReactDOM -->
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+
+  <!-- Babel para compilar JSX no navegador -->
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Martian+Mono:wght@400;700;800&family=DM+Sans:wght@400;600;900&display=swap');
+
+    :root {
+      --bg-deep: #030303;
+      --bg-panel: #0d0d0d;
+      --border-tech: #1a1a1a;
+      --accent-primary: #00ff9d;
+      --accent-secondary: #00ccff;
+      --text-main: #e8e8e8;
+      --text-dim: #666666;
+      --warning: #ff3b3b;
+      --success: #00ff9d;
+    }
+
+    * { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+
+    body {
+      background-color: var(--bg-deep);
+      color: var(--text-main);
+      font-family: 'DM Sans', sans-serif;
+      background-image:
+        radial-gradient(circle at 20% 50%, rgba(0, 255, 157, 0.03) 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, rgba(0, 204, 255, 0.02) 0%, transparent 50%),
+        linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+      background-size: 100% 100%, 100% 100%, 40px 40px, 40px 40px;
+    }
+
+    .font-tech { font-family: 'Martian Mono', monospace; }
+
+    .scanline {
+      position: fixed; inset: 0;
+      background: linear-gradient(to bottom, transparent 50%, rgba(0, 0, 0, 0.25) 50%);
+      background-size: 100% 3px;
+      pointer-events: none; z-index: 50; opacity: 0.12;
+      animation: scan 8s linear infinite;
+    }
+    @keyframes scan { 0% { transform: translateY(0); } 100% { transform: translateY(100vh); } }
+
+    .tech-input {
+      background: rgba(13, 13, 13, 0.95);
+      border: 1px solid var(--border-tech);
+      color: white;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+    }
+    .tech-input:focus {
+      border-color: var(--accent-primary);
+      box-shadow: 0 0 20px rgba(0, 255, 157, 0.15), inset 0 1px 3px rgba(0, 255, 157, 0.1);
+      outline: none;
+      background: #0a0a0a;
+    }
+    .tech-input:hover:not(:focus) { border-color: #2a2a2a; }
+
+    .cyber-button {
+      background: linear-gradient(135deg, #ffffff 0%, #e0e0e0 100%);
+      color: #000; position: relative; overflow: hidden;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      font-weight: 900; letter-spacing: 0.1em;
+    }
+    .cyber-button::before {
+      content: ''; position: absolute; top: 0; left: -100%;
+      width: 100%; height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(0, 255, 157, 0.3), transparent);
+      transition: left 0.5s;
+    }
+    .cyber-button:hover::before { left: 100%; }
+    .cyber-button:hover {
+      background: var(--accent-primary);
+      box-shadow: 0 0 30px rgba(0, 255, 157, 0.5), 0 0 60px rgba(0, 255, 157, 0.2);
+      transform: translateY(-2px);
+    }
+    .cyber-button:active { transform: translateY(0px); box-shadow: 0 0 15px rgba(0, 255, 157, 0.3); }
+    .cyber-button:disabled {
+      background: #1a1a1a; color: #444;
+      cursor: not-allowed; transform: none; box-shadow: none;
+    }
+    .cyber-button:disabled::before { display: none; }
+
+    .copy-button {
+      background: #1a1a1a;
+      border: 1px solid #2a2a2a;
+      color: #888;
+      transition: all 0.2s;
+      font-size: 10px;
+      padding: 8px 16px;
+      font-family: 'Martian Mono', monospace;
+      letter-spacing: 0.1em;
+    }
+    .copy-button:hover {
+      background: #ffffff; color: #000; border-color: #ffffff;
+      transform: translateY(-1px);
+    }
+    .copy-button.copied { background: var(--success); color: #000; border-color: var(--success); }
+
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: var(--bg-deep); }
+    ::-webkit-scrollbar-thumb { background: #222; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #333; }
+
+    @keyframes loading-bar { 0% { transform: translateX(-100%); } 100% { transform: translateX(400%); } }
+    .loading-anim { position: relative; overflow: hidden; }
+    .loading-anim::after {
+      content: ''; position: absolute; top: 0; left: 0;
+      width: 25%; height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(0, 255, 157, 0.6), transparent);
+      animation: loading-bar 1.5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+    }
+
+    .text-shadow-glow { text-shadow: 0 0 30px rgba(255, 255, 255, 0.4), 0 0 60px rgba(0, 255, 157, 0.2); }
+
+    .visual-card {
+      background: linear-gradient(135deg, #0a0a0a 0%, #050505 100%);
+      border: 1px solid var(--border-tech);
+      transition: all 0.3s;
+    }
+    .visual-card:hover {
+      border-color: #2a2a2a;
+      background: linear-gradient(135deg, #0d0d0d 0%, #080808 100%);
+      transform: translateY(-2px);
+    }
+
+    .status-indicator {
+      width: 8px; height: 8px; border-radius: 50%;
+      animation: pulse-indicator 2s ease-in-out infinite;
+    }
+/* ===== FIX DROPDOWN VISIBILITY (Windows / Chromium) ===== */
+select {
+  color-scheme: dark;
+}
+
+select option {
+  background-color: #0a0a0a !important;
+  color: #ffffff !important;
+}
+
+/* quando o option estiver selecionado */
+select option:checked {
+  background-color: #ffffff !important;
+  color: #000000 !important;
+}
+
+    @keyframes pulse-indicator {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(1.2); }
+    }
+
+    .error-shake { animation: shake 0.5s; }
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-10px); }
+      75% { transform: translateX(10px); }
+    }
+
+    .fade-in { animation: fadeIn 0.6s ease-out; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+    .toast {
+      position: fixed; top: 20px; right: 20px;
+      background: var(--bg-panel);
+      border: 1px solid var(--accent-primary);
+      padding: 16px 24px;
+      border-radius: 4px;
+      font-family: 'Martian Mono', monospace;
+      font-size: 11px;
+      z-index: 1000;
+      animation: slideIn 0.3s ease-out;
+      box-shadow: 0 0 20px rgba(0, 255, 157, 0.3);
+    }
+    @keyframes slideIn { from { transform: translateX(400px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+    /* Modal */
+    .modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 1000; display:flex; align-items:center; justify-content:center; padding: 24px; }
+    .modal-panel { max-width: 560px; width:100%; background: #070707; border: 1px solid #2a2a2a; border-radius: 6px; box-shadow: 0 0 40px rgba(0,0,0,0.6); }
+  </style>
+</head>
+
+<body class="antialiased selection:bg-[#00ff9d] selection:text-black">
+  <div class="scanline"></div>
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState, useEffect, useCallback, useMemo } = React;
+
+    // =========================================================
+    // CONFIGURAÇÃO (SEU CÓDIGO BASE) + utilitários
+    // =========================================================
+
+    const STOPWORDS = new Set([
+      'a','o','as','os','um','uma','uns','umas','de','do','da','dos','das',
+      'em','no','na','nos','nas','por','pelo','pela','pelos','pelas',
+      'que','se','eu','voce','você','ele','ela','nos','nós','eles','elas',
+      'meu','minha','teu','tua','sua','seu','nossa','nosso',
+      'para','pra','com','sem','sob','sobre','ate','até','ao','aos','à','às',
+      'quando','como','onde','porque','porquê','por','mas','e','ou','nem',
+      'entao','então','pois','ja','já','agora','tbm','vc','pq','so','só',
+      'ser','ter','estar','foi','era','vai','vou','vamos','tem','tinha',
+      'sao','são','num','numa','nuns','nessa','nesse','nisto','nisso',
+      'daqui','ali','aqui','la','lá','pro','ta','tá','tô','to','tava',
+      'tive','tenho','tiver','tivesse','toda','todo','todas','todos'
+    ]);
+
+    const BANNED_THEMES = new Set([
+      'isso','aquilo','algo','coisa','disso','daquilo','coisas',
+      'segredo','verdade','tudo','nada','sempre','nunca','talvez',
+      'hoje','ontem','amanha','amanhã','dia','dias','vez','vezes',
+      'video','vídeo','canal','gente','pessoal','galera','mundo','vida','parte','partes',
+      'jeito','forma','maneira','tipo','modo','modos','cena','caso','exemplo','exemplos',
+      'alguma','algumas','qualquer','muito','muita','pouco','pouca','mais','menos',
+      'outro','outros','outra','outras','mesma','mesmo','mesmas','mesmos',
+      'veja','olha','aqui','agora','isso','la','lá'
+    ]);
+
+    const ABSTRACT_STATES = new Set([
+      'saber','souber','soube','sabia','sabendo',
+      'entender','entenda','entendi','entendia','entendendo',
+      'conseguir','consigo','consegue','consegui','conseguindo',
+      'poder','posso','pode','pude','podia','podendo',
+      'dever','devo','deve','devia','devendo',
+      'sentir','sinto','sente','senti','sentia','sentindo',
+      'pensar','penso','pensa','pensei','pensava','pensando',
+      'querer','quero','quer','quis','queria','querendo',
+      'virar','vira','virou','virando',
+      'ficar','fica','ficou','ficava','ficando',
+      'perder','perde','perdeu','perdia','perdendo',
+      'aceitar','aceito','aceita','aceitei','aceitava','aceitando',
+      'reconhecer','reconheço','reconhece','reconheci','reconhecendo',
+      'explicar','explico','explica','expliquei','explicando',
+      'falar','falo','fala','falei','falava','falando',
+      'fazer','faço','faz','fez','fazia','fazendo',
+      'dar','dou','dá','dei','dava','dando',
+      'ver','vejo','vê','vi','via','vendo',
+      'ir','vou','vai','fui','ia','indo',
+      'vir','venho','vem','vim','vinha','vindo',
+      'nao','não','nem'
+    ]);
+
+    const NICHES = {
+      "Entretenimento": [
+        "Histórias narradas (ficção)","Drama / Romance","Diferença social (rico x pobre)","Histórias urbanas / cotidianas","Humor narrativo","Curiosidades impactantes","Storytelling serializado"
+      ],
+      "Relações Humanas": [
+        "Romance","Traição","Conflitos familiares","Poder / desigualdade","Psicologia dos relacionamentos"
+      ],
+      "Educação": [
+        "História explicada","Curiosidades históricas","Ciência simplificada","Casos reais","Análises"
+      ],
+      "Espiritualidade": [
+        "Reflexões","Mensagens bíblicas","Histórias de fé","Oração / meditação","Música espiritual"
+      ],
+      "Finanças": [
+        "Finanças pessoais","Mentalidade financeira","Histórias de sucesso/fracasso","Empreendedorismo","Renda extra"
+      ],
+      "Música / Áudio": [
+        "Sertanejo","Pagode","Trap","Rap","Funk","Pop","Worship / Gospel","Lo-fi / Chill","Instrumental","Ambient / Soundscape"
+      ],
+      "Saúde / Bem-estar": [
+        "Ansiedade","Sono","Relaxamento","Autocuidado","Vida equilibrada"
+      ],
+      "Mistério / Curiosidade": [
+        "Casos reais","Mistérios não resolvidos","Histórias perturbadoras","Teorias","True crime"
+      ],
+      "Tecnologia": [
+        "Inteligência Artificial","Ferramentas úteis","Automação","Produtividade digital"
+      ],
+      "Lifestyle": [
+        "Vida simples","Rotina","Minimalismo","Relacionamentos","Histórias pessoais"
+      ]
+    };
+
+    const INTENTIONS = ["Curiosidade","Identificação emocional","Alerta / cuidado","Conflito / tensão","Revelação","Esperança / conforto"];
+    const EMOTIONS = ["Automático","Curiosidade","Tensão","Conforto","Revolta","Esperança","Choque"];
+    const RISK_LEVELS = ["Conservador","Equilibrado","Agressivo"];
+
+    const FALLBACK_SIGNALS = {
+      mode: 'FALLBACK',
+      nicheSignals: {},
+      globalAvoidTerms: ['tutorial de', 'parte 1', 'vlog do dia', 'ep.', 'episódio'],
+      generatedAt: new Date().toISOString()
+    };
+
+    const normalize = (s) => {
+      if (!s) return "";
+      return s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^\w\s\u00C0-\u00FF]/g, " ").replace(/\s+/g, " ").trim();
+    };
+
+    const tokenize = (text) => normalize(text).split(" ").filter(w => w && w.length >= 2);
+
+    const cleanText = (text) => (text || "").replace(/\s+/g, " ").replace(/[^\w\s\u00C0-\u00FF?!,.;:()-]/g, "").trim();
+
+    const titleCase = (s) => {
+      if (!s) return "";
+      return s.split(" ").map((w, idx) => {
+        const lower = w.toLowerCase();
+        if (idx !== 0 && ['de','da','do','das','dos','em','no','na','a','o','e'].includes(lower)) return lower;
+        return w[0] ? w[0].toUpperCase() + w.slice(1).toLowerCase() : w;
+      }).join(" ");
+    };
+
+    const capitalizeFirst = (s) => {
+      if (!s) return "";
+      const words = s.split(" ");
+      words[0] = words[0][0].toUpperCase() + words[0].slice(1);
+      return words.join(" ");
+    };
+
+    const isBadThemeToken = (w) => {
+      const x = normalize(w);
+      if (!x || x.length < 2) return true;
+      if (STOPWORDS.has(x)) return true;
+      if (BANNED_THEMES.has(x)) return true;
+      if (ABSTRACT_STATES.has(x)) return true;
+      if (/^\d+$/.test(x)) return true;
+      return false;
+    };
+
+    const detectContentType = (rawText) => {
+      const lines = rawText.split("\n").map(l => l.trim()).filter(Boolean);
+      const words = tokenize(rawText);
+      const uniqueRatio = words.length ? (new Set(words).size / words.length) : 1;
+
+      const manyLines = lines.length >= 6;
+      const repeated = words.length > 40 && uniqueRatio < 0.70;
+      const hasMusicTags = /\[(verse|chorus|pre-chorus|outro|bridge|intro|refrão)\]/i.test(rawText);
+      const hasRhyme = lines.length >= 4 && lines.slice(0, 4).every(l => l.length > 10 && l.length < 80);
+      const isPoetic = manyLines || repeated || hasMusicTags || hasRhyme;
+
+      const hasDialogue = /[""].*[""]/.test(rawText) || /—\s*/.test(rawText);
+      const hasSceneMarkers = /\b(INT\.|EXT\.|FADE|CUT TO|DISSOLVE)\b/i.test(rawText);
+      const isNarrative = hasDialogue || hasSceneMarkers || (lines.length >= 5 && lines.some(l => l.length > 100));
+
+      return { isPoetic, isNarrative, lines, wordCount: words.length, uniqueRatio };
+    };
+
+    const extractAnchorQuestions = (lines) => {
+      const qs = lines.filter(l => l.includes("?")).map(l => cleanText(l)).filter(l => l.length >= 15 && l.length <= 80);
+      const cleaned = qs.filter(q => {
+        const words = tokenize(q);
+        const strong = words.filter(w => !isBadThemeToken(w)).length;
+        return strong >= 2;
+      });
+      const uniq = [];
+      const seen = new Set();
+      cleaned.forEach(q => {
+        const key = normalize(q).replace(/\b(e|se|eu|voce|você|a|o|os|as|um|uma)\b/g, "").replace(/\s+/g, " ").trim();
+        if (!seen.has(key) && key.length > 10) { seen.add(key); uniq.push(q); }
+      });
+      return uniq.slice(0, 6);
+    };
+
+    const extractImpactLines = (lines) => {
+      const candidates = lines
+        .map(l => cleanText(l))
+        .filter(l => l.length >= 20 && l.length <= 70)
+        .filter(l => !/\[.*\]/.test(l))
+        .filter(l => !l.includes("?"))
+        .filter(l => tokenize(l).filter(w => !isBadThemeToken(w)).length >= 2);
+
+      const uniq = [];
+      const seen = new Set();
+      candidates.forEach(line => {
+        const key = normalize(line);
+        if (!seen.has(key)) { seen.add(key); uniq.push(line); }
+      });
+      return uniq.slice(0, 6);
+    };
+
+    const extractStrongWords = (rawText) => {
+      const words = tokenize(rawText);
+      const score = new Map();
+      words.forEach((w) => {
+        if (isBadThemeToken(w)) return;
+        const s = 2 + w.length * 0.6;
+        score.set(w, (score.get(w) || 0) + s);
+      });
+      return [...score.entries()].sort((a, b) => b[1] - a[1]).map(([w]) => w).slice(0, 10);
+    };
+
+    const analyzeInput = (text) => {
+      const raw = (text || "").trim();
+      if (raw.length < 10) {
+        return { isValid: false, error: "Texto muito curto. Forneça pelo menos 10 caracteres.", primaryTheme: "Tema Indefinido", allThemes: [], anchorQuestions: [], impactLines: [], isPoetic: false, isNarrative: false, wordCount: 0 };
+      }
+
+      const contentType = detectContentType(raw);
+      const { isPoetic, isNarrative, lines } = contentType;
+
+      const anchorQuestions = extractAnchorQuestions(lines);
+      const impactLines = extractImpactLines(lines);
+      const strongWords = extractStrongWords(raw);
+
+      const themes = [];
+      if (anchorQuestions[0]) themes.push(anchorQuestions[0].replace(/\?+$/, ""));
+      if (impactLines[0]) themes.push(impactLines[0]);
+      strongWords.slice(0, 6).forEach(w => themes.push(titleCase(w)));
+
+      const final = [];
+      const seen = new Set();
+      themes.forEach(t => {
+        const key = normalize(t);
+        if (!key || seen.has(key)) return;
+        const strong = tokenize(t).filter(x => !isBadThemeToken(x)).length;
+        if (strong === 0) return;
+        seen.add(key);
+        final.push(t);
+      });
+
+      if (!final.length) final.push(isPoetic ? "Quando O Sentimento Muda Tudo" : "O Que Está Por Trás Disso");
+
+      return {
+        isValid: true,
+        error: null,
+        isPoetic,
+        isNarrative,
+        primaryTheme: final[0],
+        allThemes: final.slice(0, 12),
+        anchorQuestions,
+        impactLines,
+        wordCount: contentType.wordCount
+      };
+    };
+
+    const compressForShort = (title) => {
+      if (title.length <= 55) return title;
+      const cleaned = title.replace(/\s*\(.*?\)\s*/g, " ").replace(/\s{2,}/g, " ").trim();
+      if (cleaned.length <= 55) return cleaned;
+      const cut = cleaned.slice(0, 52);
+      const lastSpace = cut.lastIndexOf(" ");
+      return (lastSpace > 30 ? cut.slice(0, lastSpace) : cut) + "…";
+    };
+
+    // =========================================================
+    // COMPONENTE PRINCIPAL
+    // =========================================================
+
+    function CTROptimizer() {
+      const [step, setStep] = useState(1);
+      const [loading, setLoading] = useState(false);
+      const [result, setResult] = useState(null);
+      const [signals, setSignals] = useState(null);
+      const [signalsStatus, setSignalsStatus] = useState('loading');
+      const [snapshotStatus, setSnapshotStatus] = useState('loading');
+      const [error, setError] = useState(null);
+
+      const [copiedField, setCopiedField] = useState(null);
+      const [showToast, setShowToast] = useState(false);
+      const [toastMessage, setToastMessage] = useState('');
+
+      const [showFallbackModal, setShowFallbackModal] = useState(false);
+      const [fallbackInfo, setFallbackInfo] = useState({ message: "", payload: null });
+
+      const [formData, setFormData] = useState({
+        idea: "",
+        format: "Vídeo longo",
+        niche: "",
+        subniche: "",
+        intention: "Curiosidade",
+        emotion: "Automático",
+        risk: "Equilibrado"
+      });
+
+      const [snapshotMeta, setSnapshotMeta] = useState(null);
+
+      const showToastMessage = useCallback((message) => {
+        setToastMessage(message);
+        setShowToast(true);
+        setTimeout(() => setShowToast(false), 3000);
+      }, []);
+
+      const handleInputChange = useCallback((field, value) => {
+        setFormData(prev => {
+          const newData = { ...prev, [field]: value };
+          if (field === 'niche') newData.subniche = "";
+          return newData;
+        });
+        setError(null);
+      }, []);
+
+      const validateForm = useCallback(() => {
+        if (!formData.idea || formData.idea.trim().length < 10) { setError("A ideia precisa ter pelo menos 10 caracteres."); return false; }
+        if (!formData.niche) { setError("Selecione um nicho."); return false; }
+        if (!formData.subniche) { setError("Selecione uma especificidade."); return false; }
+        return true;
+      }, [formData]);
+
+      const fetchSnapshot = useCallback(async () => {
+        try {
+          setSnapshotStatus("loading");
+          const res = await fetch("/.netlify/functions/signals", { method: "GET" });
+          if (!res.ok) throw new Error("Falha ao carregar snapshot");
+          const data = await res.json();
+          if (data.snapshot) {
+            setSignals(data.snapshot);
+            setSignalsStatus("success");
+            setSnapshotStatus("ready");
+            setSnapshotMeta({ generatedAt: data.snapshot.generatedAt, validUntil: data.snapshot.validUntil });
+          } else {
+            setSignals(FALLBACK_SIGNALS);
+            setSignalsStatus("fallback");
+            setSnapshotStatus("empty");
+            setSnapshotMeta(null);
+          }
+        } catch (e) {
+          // Se não estiver rodando em Netlify (file://), cai pro fallback sem quebrar o app
+          setSignals(FALLBACK_SIGNALS);
+          setSignalsStatus("fallback");
+          setSnapshotStatus("offline");
+          setSnapshotMeta(null);
+        }
+      }, []);
+
+      const updateSnapshot = useCallback(async () => {
+        try {
+          setSnapshotStatus("updating");
+          const res = await fetch("/.netlify/functions/signals", {
+            method: "POST",
+            headers: { "content-type": "application/json" },
+            body: JSON.stringify({ force: true, refreshDays: 21, windowDays: 30 })
+          });
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.error || "Erro ao atualizar snapshot");
+          if (data.snapshot) {
+            setSignals(data.snapshot);
+            setSignalsStatus("success");
+            setSnapshotStatus("updated");
+            setSnapshotMeta({ generatedAt: data.snapshot.generatedAt, validUntil: data.snapshot.validUntil });
+          }
+          showToastMessage("Snapshot do YouTube atualizado!");
+          setTimeout(() => setSnapshotStatus("ready"), 1200);
+        } catch (e) {
+          setSnapshotStatus("error");
+          showToastMessage("Falha ao atualizar snapshot (verifique YOUTUBE_API_KEY)");
+        }
+      }, [showToastMessage]);
+
+      useEffect(() => { fetchSnapshot(); }, [fetchSnapshot]);
+
+      const timeLeftLabel = useMemo(() => {
+        if (!snapshotMeta?.validUntil) return "—";
+        const ms = new Date(snapshotMeta.validUntil).getTime() - Date.now();
+        if (ms <= 0) return "EXPIRADO";
+        const days = Math.floor(ms / (24 * 60 * 60 * 1000));
+        const hours = Math.floor((ms % (24 * 60 * 60 * 1000)) / (60 * 60 * 1000));
+        return `${days}d ${hours}h`;
+      }, [snapshotMeta]);
+
+      const copyToClipboard = useCallback((text, fieldName) => {
+        if (!text) return;
+        if (navigator.clipboard && window.isSecureContext) {
+          navigator.clipboard.writeText(text).then(() => {
+            setCopiedField(fieldName);
+            showToastMessage(`${fieldName} copiado!`);
+            setTimeout(() => setCopiedField(null), 2000);
+          }).catch(() => showToastMessage("Erro ao copiar"));
+        } else {
+          const textarea = document.createElement('textarea');
+          textarea.value = text;
+          textarea.style.position = 'fixed';
+          textarea.style.opacity = '0';
+          document.body.appendChild(textarea);
+          textarea.select();
+          try {
+            document.execCommand('copy');
+            setCopiedField(fieldName);
+            showToastMessage(`${fieldName} copiado!`);
+            setTimeout(() => setCopiedField(null), 2000);
+          } catch (err) {
+            showToastMessage("Erro ao copiar");
+          }
+          document.body.removeChild(textarea);
+        }
+      }, [showToastMessage]);
+
+      const resetApp = useCallback(() => {
+        setResult(null);
+        setStep(1);
+        setError(null);
+        setFormData(prev => ({ ...prev, idea: "" }));
+      }, []);
+
+      // ========= CHAMADA DA IA (Gemini default / OpenAI com confirmação) =========
+      const runAI = useCallback(async ({ allowOpenAI }) => {
+        const analysis = analyzeInput(formData.idea);
+        if (!analysis.isValid) throw new Error(analysis.error);
+
+        const payload = {
+          formData,
+          allowOpenAI,
+          extracted: {
+            primaryTheme: analysis.primaryTheme,
+            allThemes: analysis.allThemes,
+            anchorQuestions: analysis.anchorQuestions,
+            impactLines: analysis.impactLines,
+            rawExcerpt: formData.idea.slice(0, 1600)
+          }
+        };
+
+        const res = await fetch("/.netlify/functions/analyze", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+
+        // Se Gemini falhar e precisar de confirmação para usar OpenAI
+        if (res.status === 409) {
+          const data = await res.json();
+          return { type: "NEEDS_CONFIRMATION", data, payload };
+        }
+
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(data.error || "Erro ao processar na IA.");
+
+        // Se o backend avisar "LOCAL", cai no modo local
+        if (data.provider === "LOCAL") {
+          return { type: "LOCAL", data, payload };
+        }
+
+        return { type: "OK", data, payload };
+      }, [formData]);
+
+      const processGeneration = useCallback(async () => {
+        if (!validateForm()) return;
+
+        setLoading(true);
+        setError(null);
+
+        try {
+          const r = await runAI({ allowOpenAI: false });
+
+          if (r.type === "NEEDS_CONFIRMATION") {
+            setLoading(false);
+            setFallbackInfo({ message: r.data.message || "Posso usar OpenAI?", payload: r.payload });
+            setShowFallbackModal(true);
+            return;
+          }
+
+          if (r.type === "OK") {
+            const ai = r.data;
+
+            const debugTheme = (ai.patternUsed || "") ? analysis?.primaryTheme : (analysis?.primaryTheme || "");
+            // (debugTheme é apenas informativo; o importante é provider + resultado)
+
+            setResult({
+              title: ai.title,
+              thumbText: ai.thumbText,
+              thumbPrompt: ai.thumbPrompt,
+              keywords: ai.keywords || [],
+              debugTheme: (analysisInput(formData.idea)?.primaryTheme || ""),
+              debugScore: null,
+              debugType: "IA",
+              debugWordCount: analyzeInput(formData.idea)?.wordCount || 0,
+              provider: ai.provider || "GEMINI"
+            });
+
+            setLoading(false);
+            setStep(2);
+            return;
+          }
+
+          // r.type === "LOCAL" => cai pro fallback local (sem quebrar)
+          throw new Error(r.data.message || "IA indisponível (modo local).");
+
+        } catch (err) {
+          // Fallback local (mantém seu app funcionando)
+          console.warn("Fallback LOCAL:", err.message);
+
+          const analysis = analyzeInput(formData.idea);
+          if (!analysis.isValid) { setError(analysis.error); setLoading(false); return; }
+
+          const localTitleBase = analysis.anchorQuestions[0] || analysis.impactLines[0] || `${analysis.primaryTheme}: O Que Você Precisa Saber`;
+          const localTitle = formData.format === "Short" ? compressForShort(capitalizeFirst(localTitleBase)) : capitalizeFirst(localTitleBase);
+
+          const localThumb = (() => {
+            const up = normalize(analysis.primaryTheme).toUpperCase();
+            if (analysis.isPoetic) return "CONFESSO";
+            if (up.includes("trai")) return "TRAIÇÃO";
+            if (up.includes("medo")) return "MEDO";
+            return "REVELADO";
+          })();
+
+          const localPrompt =
+`Thumbnail 16:9, alto contraste, foco emocional.
+Assunto: "${analysis.primaryTheme}".
+Texto grande: "${localThumb}" (fonte sans bold, branco com contorno).
+Cena: close/medium shot, fundo escuro desfocado, rim light, expressão intensa coerente com o tema.
+Paleta: preto + 1 cor de destaque (verde/azul ou vermelho conforme tensão).
+Evitar: poluição visual, muitas fontes, texto pequeno, fundo branco puro.`;
+
+          setResult({
+            title: localTitle,
+            thumbText: localThumb,
+            thumbPrompt: localPrompt,
+            keywords: [],
+            debugTheme: analysis.primaryTheme,
+            debugScore: 0,
+            debugType: "LOCAL",
+            debugWordCount: analysis.wordCount,
+            provider: "LOCAL"
+          });
+
+          showToastMessage("IA indisponível — usando modo local.");
+          setLoading(false);
+          setStep(2);
+        }
+      }, [validateForm, runAI, formData, showToastMessage]);
+
+      const confirmOpenAI = useCallback(async () => {
+        try {
+          setShowFallbackModal(false);
+          setLoading(true);
+
+          const r = await runAI({ allowOpenAI: true });
+          if (r.type !== "OK") throw new Error("Falha ao usar OpenAI.");
+
+          const ai = r.data;
+          setResult({
+            title: ai.title,
+            thumbText: ai.thumbText,
+            thumbPrompt: ai.thumbPrompt,
+            keywords: ai.keywords || [],
+            debugTheme: analyzeInput(formData.idea)?.primaryTheme || "",
+            debugScore: null,
+            debugType: "IA",
+            debugWordCount: analyzeInput(formData.idea)?.wordCount || 0,
+            provider: ai.provider || "OPENAI"
+          });
+
+          setLoading(false);
+          setStep(2);
+
+        } catch (e) {
+          setLoading(false);
+          setError(e.message || "Falha no fallback OpenAI.");
+        }
+      }, [runAI, formData]);
+
+      const isFormValid = formData.idea.trim().length >= 10 && formData.niche && formData.subniche;
+
+      // =====================================================
+      // LOADING
+      // =====================================================
+      if (loading) {
+        return (
+          <div className="min-h-screen flex flex-col items-center justify-center p-8 text-center relative overflow-hidden fade-in">
+            <div className="absolute inset-0 bg-gradient-to-b from-black via-neutral-950 to-black z-0"></div>
+            <div className="z-10 w-full max-w-lg space-y-10">
+              <div className="flex items-center justify-center gap-3 mb-8">
+                <div className="status-indicator bg-green-500"></div>
+                <div className="font-tech text-xs text-green-500 tracking-[0.3em] uppercase animate-pulse">
+                  Processando IA + Snapshot
+                </div>
+              </div>
+              <div className="relative h-2 w-full bg-neutral-900 rounded-full overflow-hidden border border-neutral-800">
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent loading-anim"></div>
+              </div>
+              <div className="space-y-3 text-xs font-tech text-neutral-500 text-left pl-6 border-l-2 border-neutral-800 mt-12">
+                <p className="animate-pulse"> Analisando conteúdo...</p>
+                <p className="animate-pulse" style={{animationDelay: '0.3s'}}> Consultando padrões do snapshot...</p>
+                <p className="animate-pulse" style={{animationDelay: '0.6s'}}> Gerando título + thumb...</p>
+                <p className="animate-pulse" style={{animationDelay: '0.9s'}}> Montando prompt de thumbnail...</p>
+              </div>
+              <div className="mt-12 text-center">
+                <div className="inline-block px-6 py-2 border border-neutral-800 bg-neutral-950/50 font-tech text-[10px] text-neutral-600 tracking-wider">
+                  PROCESSAMENTO EM ANDAMENTO
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+      }
+
+      // =====================================================
+      // RESULT
+      // =====================================================
+      if (result && step === 2) {
+        return (
+          <div className="min-h-screen p-4 md:p-12 flex justify-center items-start bg-gradient-to-b from-black via-neutral-950 to-black fade-in">
+            {showToast && (<div className="toast">✓ {toastMessage}</div>)}
+
+            <div className="max-w-5xl w-full">
+              <div className="flex items-end justify-between border-b border-neutral-800 pb-6 mb-10">
+                <div>
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="status-indicator bg-green-500"></div>
+                    <div className="font-tech text-[9px] text-green-500 tracking-[0.25em]">
+                      STATUS: OTIMIZADO // ENGINE: {result.provider}
+                    </div>
+                  </div>
+                  <h1 className="text-4xl md:text-5xl font-black text-white tracking-tighter">RESULTADO FINAL</h1>
+                  <div className="mt-2 font-tech text-[10px] text-neutral-600">
+                    TIPO: {result.debugType} // PALAVRAS: {result.debugWordCount}
+                  </div>
+                </div>
+                <button
+                  onClick={resetApp}
+                  className="font-tech text-xs text-neutral-500 hover:text-white transition-colors border-b border-transparent hover:border-white pb-1"
+                >
+                  [ NOVA ANÁLISE ]
+                </button>
+              </div>
+
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-10">
+                <div className="lg:col-span-8 bg-gradient-to-br from-neutral-900 to-black border border-neutral-800 p-8 relative group hover:border-neutral-700 transition-all">
+                  <span className="font-tech text-[10px] text-neutral-500 uppercase tracking-[0.2em] block mb-5">
+                    Título Otimizado
+                  </span>
+                  <div className="text-2xl md:text-3xl lg:text-4xl font-bold text-white leading-tight font-sans mb-6">
+                    {result.title}
+                  </div>
+                  <div className="flex items-center justify-between pt-4 border-t border-neutral-900">
+                    <div className="font-tech text-[9px] text-neutral-600 tracking-wider">
+                      TEMA: {normalize(result.debugTheme).toUpperCase()}
+                    </div>
+                    <button
+                      onClick={() => copyToClipboard(result.title, "Título")}
+                      className={`copy-button ${copiedField === "Título" ? "copied" : ""}`}
+                    >
+                      {copiedField === "Título" ? "✓ COPIADO" : "COPIAR"}
+                    </button>
+                  </div>
+                </div>
+
+                <div className="lg:col-span-4 bg-gradient-to-br from-neutral-900 to-black border border-neutral-800 p-8 flex flex-col justify-center items-center text-center relative overflow-hidden group hover:border-neutral-700 transition-all">
+                  <span className="font-tech text-[10px] text-neutral-500 uppercase tracking-[0.2em] block mb-4 relative z-10">
+                    Texto da Thumb
+                  </span>
+                  <div className="text-3xl md:text-4xl lg:text-5xl font-black text-white tracking-tighter relative z-10 text-shadow-glow mb-6">
+                    "{result.thumbText}"
+                  </div>
+                  <button
+                    onClick={() => copyToClipboard(result.thumbText, "Thumb")}
+                    className={`copy-button relative z-10 ${copiedField === "Thumb" ? "copied" : ""}`}
+                  >
+                    {copiedField === "Thumb" ? "✓ COPIADO" : "COPIAR"}
+                  </button>
+                </div>
+              </div>
+
+              {/* Prompt da Thumbnail */}
+              <div className="border-t border-neutral-800 pt-10">
+                <div className="flex items-center justify-between gap-3 mb-5">
+                  <div className="flex items-center gap-3">
+                    <div className="status-indicator bg-cyan-500"></div>
+                    <div className="font-tech text-[10px] text-neutral-500 uppercase tracking-[0.25em]">
+                      Prompt da Thumbnail (copiar e gerar imagem)
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => copyToClipboard(result.thumbPrompt, "Prompt")}
+                    className={`copy-button ${copiedField === "Prompt" ? "copied" : ""}`}
+                  >
+                    {copiedField === "Prompt" ? "✓ COPIADO" : "COPIAR"}
+                  </button>
+                </div>
+
+                <textarea
+                  readOnly
+                  value={result.thumbPrompt || ""}
+                  className="w-full tech-input rounded-sm p-6 text-sm font-sans h-56 resize-none"
+                />
+
+                {Array.isArray(result.keywords) && result.keywords.length > 0 && (
+                  <div className="mt-6 visual-card p-6">
+                    <div className="font-tech text-[10px] text-neutral-500 uppercase tracking-wider mb-2">Keywords</div>
+                    <div className="text-sm text-gray-200">{result.keywords.join(", ")}</div>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Modal de confirmação OpenAI */}
+            {showFallbackModal && (
+              <div className="modal-backdrop">
+                <div className="modal-panel p-6">
+                  <div className="font-tech text-xs text-neutral-400 uppercase tracking-wider mb-3">Confirmação Necessária</div>
+                  <div className="text-white text-lg font-bold mb-2">Usar OpenAI como fallback?</div>
+                  <div className="text-neutral-400 text-sm leading-relaxed mb-6">
+                    {fallbackInfo.message || "O Gemini falhou. Se você confirmar, o app vai usar OpenAI (isso pode consumir créditos)."}
+                  </div>
+                  <div className="flex gap-3 justify-end">
+                    <button
+                      onClick={() => setShowFallbackModal(false)}
+                      className="copy-button"
+                    >
+                      CANCELAR
+                    </button>
+                    <button
+                      onClick={confirmOpenAI}
+                      className="cyber-button px-5 py-3 text-xs uppercase"
+                    >
+                      CONFIRMAR OPENAI
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+          </div>
+        );
+      }
+
+      // =====================================================
+      // FORM
+      // =====================================================
+      return (
+        <div className="max-w-4xl mx-auto px-6 py-20 fade-in">
+          {showToast && (<div className="toast">✓ {toastMessage}</div>)}
+
+          <header className="mb-20 text-left border-l-2 border-white pl-8">
+            <div className="flex items-center gap-2 mb-3">
+              <div className={`status-indicator ${signalsStatus === 'success' ? 'bg-green-500' : 'bg-yellow-500'}`}></div>
+              <div className="font-tech text-[9px] tracking-[0.3em] text-neutral-500 uppercase">
+                SYSTEM: {signalsStatus === 'success' ? 'ONLINE' : 'STANDBY'}
+              </div>
+            </div>
+
+            <h1 className="text-5xl md:text-6xl font-black text-white tracking-tighter mb-3 text-shadow-glow">
+              CTR OPTIMIZER
+            </h1>
+
+            <div className="flex flex-wrap items-center gap-4 mt-3">
+              <div className="font-tech text-[10px] text-neutral-600 tracking-wider">
+                SNAPSHOT: {snapshotStatus.toUpperCase()} {snapshotMeta?.validUntil ? `// EXPIRA EM: ${timeLeftLabel}` : ""}
+              </div>
+              <button
+                onClick={updateSnapshot}
+                className="copy-button"
+                disabled={snapshotStatus === "updating"}
+                title="Atualiza o snapshot do YouTube (ideal a cada 15–21 dias)"
+              >
+                {snapshotStatus === "updating" ? "ATUALIZANDO..." : "ATUALIZAR SNAPSHOT"}
+              </button>
+            </div>
+          </header>
+
+          {error && (
+            <div className="mb-8 p-6 bg-red-950/30 border border-red-900/50 rounded-sm error-shake">
+              <div className="flex items-start gap-3">
+                <span className="text-red-500 text-xl">⚠</span>
+                <div>
+                  <div className="font-tech text-xs text-red-500 uppercase tracking-wider mb-1">Erro de Validação</div>
+                  <div className="text-sm text-red-300">{error}</div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          <div className="space-y-10">
+            <div className="space-y-4">
+              <label className="font-tech text-xs text-neutral-400 uppercase tracking-[0.15em] block flex items-center gap-2">
+                <span className="text-white">01.</span>
+                Contexto / Ideia / Roteiro
+                <span className="text-neutral-700 text-[10px]">(mín. 10 caracteres)</span>
+              </label>
+              <textarea
+                value={formData.idea}
+                onChange={(e) => handleInputChange('idea', e.target.value)}
+                className="w-full tech-input rounded-sm p-6 text-sm md:text-base font-sans h-48 resize-none placeholder-neutral-700 focus:placeholder-neutral-600"
+                placeholder="Cole sua letra de música, roteiro, ou descreva sua ideia aqui..."
+              />
+              <div className="flex items-center justify-between">
+                <div className="font-tech text-[9px] text-neutral-700">{formData.idea.length} caracteres</div>
+                {formData.idea.length >= 10 && (<div className="font-tech text-[9px] text-green-500">✓ Válido</div>)}
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <div className="space-y-4">
+                <label className="font-tech text-xs text-neutral-400 uppercase tracking-[0.15em] block flex items-center gap-2">
+                  <span className="text-white">02.</span> Formato do Vídeo
+                </label>
+                <div className="grid grid-cols-2 gap-px bg-neutral-800 border border-neutral-800">
+                  {["Short", "Vídeo longo"].map((f) => (
+                    <button
+                      key={f}
+                      onClick={() => handleInputChange('format', f)}
+                      className={`py-4 text-xs font-tech uppercase transition-all
+                        ${formData.format === f
+                          ? 'bg-white text-black font-bold'
+                          : 'bg-neutral-950 text-neutral-500 hover:text-white hover:bg-neutral-900'}`}
+                    >
+                      {f}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <label className="font-tech text-xs text-neutral-400 uppercase tracking-[0.15em] block flex items-center gap-2">
+                  <span className="text-white">03.</span> Nicho de Mercado
+                </label>
+                <select
+                  value={formData.niche}
+                  onChange={(e) => handleInputChange('niche', e.target.value)}
+                  className="w-full tech-input rounded-sm p-4 font-tech text-xs uppercase appearance-none cursor-pointer"
+                >
+                  <option value="">[ SELECIONE O SETOR ]</option>
+                  {Object.keys(NICHES).map(n => (
+                    <option key={n} value={n}>{n.toUpperCase()}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="space-y-4">
+                <label className="font-tech text-xs text-neutral-400 uppercase tracking-[0.15em] block flex items-center gap-2">
+                  <span className="text-white">04.</span> Especificidade
+                </label>
+                <select
+                  value={formData.subniche}
+                  onChange={(e) => handleInputChange('subniche', e.target.value)}
+                  disabled={!formData.niche}
+                  className="w-full tech-input rounded-sm p-4 font-tech text-xs uppercase appearance-none cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
+                >
+                  <option value="">{formData.niche ? '[ SELECIONE ]' : '[ AGUARDANDO NICHO ]'}</option>
+                  {formData.niche && NICHES[formData.niche].map(s => (
+                    <option key={s} value={s}>{s.toUpperCase()}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="space-y-4">
+                <label className="font-tech text-xs text-neutral-400 uppercase tracking-[0.15em] block flex items-center gap-2">
+                  <span className="text-white">05.</span> Objetivo Estratégico
+                </label>
+                <select
+                  value={formData.intention}
+                  onChange={(e) => handleInputChange('intention', e.target.value)}
+                  className="w-full tech-input rounded-sm p-4 font-tech text-xs uppercase appearance-none cursor-pointer"
+                >
+                  {INTENTIONS.map(i => (<option key={i} value={i}>{i.toUpperCase()}</option>))}
+                </select>
+              </div>
+            </div>
+
+            <div className="pt-8 border-t border-neutral-900 grid grid-cols-1 md:grid-cols-2 gap-8">
+              <div className="space-y-4">
+                <label className="font-tech text-xs text-neutral-600 uppercase tracking-[0.15em] block">
+                  Carga Emocional <span className="text-[9px] text-neutral-800 ml-2">(Opcional)</span>
+                </label>
+                <select
+                  value={formData.emotion}
+                  onChange={(e) => handleInputChange('emotion', e.target.value)}
+                  className="w-full bg-transparent border-b border-neutral-800 text-neutral-400 py-3 font-tech text-xs uppercase focus:outline-none focus:border-white focus:text-white transition-colors cursor-pointer appearance-none"
+                >
+                  {EMOTIONS.map(e => (<option key={e} value={e}>{e.toUpperCase()}</option>))}
+                </select>
+              </div>
+
+              <div className="space-y-4">
+                <label className="font-tech text-xs text-neutral-600 uppercase tracking-[0.15em] block">
+                  Perfil de Risco <span className="text-[9px] text-neutral-800 ml-2">(Opcional)</span>
+                </label>
+                <select
+                  value={formData.risk}
+                  onChange={(e) => handleInputChange('risk', e.target.value)}
+                  className="w-full bg-transparent border-b border-neutral-800 text-neutral-400 py-3 font-tech text-xs uppercase focus:outline-none focus:border-white focus:text-white transition-colors cursor-pointer appearance-none"
+                >
+                  {RISK_LEVELS.map(r => (<option key={r} value={r}>{r.toUpperCase()}</option>))}
+                </select>
+              </div>
+            </div>
+
+            <div className="pt-8">
+              <button
+                onClick={processGeneration}
+                disabled={!isFormValid}
+                className={`w-full py-6 text-sm font-black tracking-[0.2em] uppercase transition-all cyber-button
+                  ${!isFormValid ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+              >
+                {!isFormValid ? "PREENCHA TODOS OS CAMPOS OBRIGATÓRIOS" : "EXECUTAR ANÁLISE (IA)"}
+              </button>
+            </div>
+
+            <div className="pt-8 border-t border-neutral-900 font-tech text-[9px] text-neutral-700 leading-relaxed">
+              <div className="mb-2 text-neutral-600 uppercase tracking-wider">System Info:</div>
+              <div className="space-y-1">
+                <div>• IA: Gemini (padrão) + fallback OpenAI com confirmação</div>
+                <div>• Snapshot YouTube: manual (15–21 dias) e válido ~30 dias</div>
+                <div>• Se não estiver em Netlify, o app funciona em modo LOCAL</div>
+              </div>
+            </div>
+
+          </div>
+
+          {showFallbackModal && (
+            <div className="modal-backdrop">
+              <div className="modal-panel p-6">
+                <div className="font-tech text-xs text-neutral-400 uppercase tracking-wider mb-3">Confirmação Necessária</div>
+                <div className="text-white text-lg font-bold mb-2">Usar OpenAI como fallback?</div>
+                <div className="text-neutral-400 text-sm leading-relaxed mb-6">
+                  {fallbackInfo.message || "O Gemini falhou. Se você confirmar, o app vai usar OpenAI (isso pode consumir créditos)."}
+                </div>
+                <div className="flex gap-3 justify-end">
+                  <button onClick={() => setShowFallbackModal(false)} className="copy-button">CANCELAR</button>
+                  <button onClick={confirmOpenAI} className="cyber-button px-5 py-3 text-xs uppercase">CONFIRMAR OPENAI</button>
+                </div>
+              </div>
+            </div>
+          )}
+
+        </div>
+      );
+    }
+
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<CTROptimizer />);
+  </script>
+</body>
+</html>
