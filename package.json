@@ -1,8 +1,0 @@
-{
-  "name": "ctr-optimizer",
-  "version": "1.0.0",
-  "private": true,
-  "dependencies": {
-    "@netlify/blobs": "^7.0.0"
-  }
-}
